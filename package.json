@@ -1,0 +1,17 @@
+{
+  "name": "node",
+  "version": "1.0.0",
+  "description": "a backend using node",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "node",
+    "Javascript",
+    "express",
+    "Backend"
+  ],
+  "author": "aadi_3101",
+  "license": "ISC"
+}
