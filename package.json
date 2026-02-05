@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "a backend using node",
   "main": "index.js",
+  "type": "module",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -13,5 +14,8 @@
     "Backend"
   ],
   "author": "aadi_3101",
-  "license": "ISC"
+  "license": "ISC",
+  "devDependencies": {
+    "prettier": "^3.8.1"
+  }
 }
