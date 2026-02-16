@@ -1,6 +1,4 @@
 import {v2 as cloudinary} from "cloudinary"
-import { log } from "console"
-import { response } from "express"
 import fs from "fs"
 
 cloudinary.config({
