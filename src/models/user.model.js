@@ -29,7 +29,6 @@ const userSchema = new Schema({
     },
     coverImage:{
         type:String,
-        required:true,
     },
     watchHistory:[
         {
@@ -43,23 +42,29 @@ const userSchema = new Schema({
     },
     refreshToken:{
         type:String,
-        required:true,
+        required:false,
     }
 },{timestamps:true})
 
-userSchema.pre("save", async function (next){
-    if(!this.isModified("password")) return next();
+// userSchema.pre("save", async function (next){
+//     if(!this.isModified("password")) return next();
 
-    this.password = await bcrypt.hash(this.password,10)
-    next()
-})
+//     this.password = await bcrypt.hash(this.password,10)
+//     next()
+// })
+
+userSchema.pre("save", async function () {
+    if (!this.isModified("password")) return;
+
+    this.password = await bcrypt.hash(this.password, 10);
+});
 
 userSchema.methods.isPasswordCorrect = async function(password){
     return await bcrypt.compare(password, this.password)
 }
 
 userSchema.methods.generateAcessToken = function(){
-    jwt.sign({
+    return jwt.sign({
         _id:this._id,
         email:this.email,
         username:this.username,
@@ -73,7 +78,7 @@ userSchema.methods.generateAcessToken = function(){
 }
 
 userSchema.methods.generateRefreshToken = function(){
-    jwt.sign(
+    return jwt.sign(
     {
         _id:this._id,
     },
