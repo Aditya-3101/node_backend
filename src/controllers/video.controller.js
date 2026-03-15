@@ -1,0 +1,235 @@
+
+import mongoose, {isValidObjectId} from "mongoose"
+import {Video} from "../models/video.model.js"
+import {User} from "../models/user.model.js"
+import {ApiError} from "../utils/ApiError.js"
+import {ApiResponse} from "../utils/ApiResponse.js"
+import {asyncHandler} from "../utils/asyncHandler.js"
+import {uploadOnCloudinary} from "../utils/cloudnary.js"
+
+
+const getAllVideos = asyncHandler(async (req, res) => {
+    const { page = 1, limit = 10, query, sortBy, sortType, userId } = req.query
+    //TODO: get all videos based on query, sort, pagination
+
+    const filter = {
+        isPublished:true,
+    }
+
+    const skip = (parseInt(page) - 1)*limit
+
+    if(!isValidObjectId(userId)){
+        throw new ApiError(403,"invalid user id")
+    }
+
+    filter.owner=userId
+
+    if(query){
+        filter.title = {$regex:query, $options:"i"}
+    }
+
+    const sort = {
+        [sortBy] : sortType === "asc" ? 1 : -1
+    }
+
+    const allVideos = await Video.find(filter).sort(sort).skip(skip).limit(parseInt(limit))
+
+    const allVideoCount = await Video.countDocuments(filter)
+
+    return res.status(200).json( new ApiResponse(200,{allVideos,allVideoCount,page:parseInt(page),limit:parseInt(limit)},"videos fetched successfully"))
+    
+})
+
+const publishAVideo = asyncHandler(async (req, res) => {
+    const { title, description} = req.body
+    // TODO: get video, upload to cloudinary, create video
+
+    if(!title?.trim()||!description?.trim()){
+        throw new ApiError(400,"invalid title/description")
+    }
+
+    const loggedInUser = req.user?._id
+
+    if(!loggedInUser){
+        throw new ApiError(400,"user didn't logged in")
+    }
+
+    const videoLocalPath = req.files?.videoFile[0]?.path;
+    const thumbnailLocalPath = req.files?.thumbnail[0]?.path;
+
+    if(!videoLocalPath){
+        throw new ApiError(400,"video not uploaded")
+    }
+
+    if(!thumbnailLocalPath){
+        throw new ApiError(400,"video not uploaded")
+    }
+
+    const videoFile = await uploadOnCloudinary(videoLocalPath)
+    const thumbnail = await uploadOnCloudinary(thumbnailLocalPath)
+
+    if(!videoFile|| !thumbnail){
+        throw new ApiError(500,"something went wrong while uploading the video/thumbnail :(")
+    }
+
+    const videos = await Video.create({
+        videoFile:videoFile.url,
+        thumbnail:thumbnail.url,
+        title,
+        description,
+        duration:videoFile.duration || 0,
+        owner:loggedInUser  
+    })
+
+    return res.status(201).json(new ApiResponse(201,videos,"video uploaded successfully"))
+
+
+})
+
+const getVideoById = asyncHandler(async (req, res) => {
+    const { videoId } = req.params
+
+    if(!videoId){
+        throw new ApiError(400,"invalid video id")
+    }
+
+    const loggedInUser = req.user?._id
+
+    if(!loggedInUser){
+        throw new ApiError(401,"User didn't logged in properly ")
+    }
+
+    const videoById = await Video.findById(videoId)
+
+    if(!videoById){
+        throw new ApiError(500,"something went wrong while fetching video by Id")
+    }
+
+    if(videoById.length===0){
+        throw new ApiError(404,"No video found with given ID")
+    }
+
+    return res.status(200).json(new ApiResponse(200,videoById,"fetched video by ID"))
+
+    //TODO: get video by id
+})
+
+const updateVideo = asyncHandler(async (req, res) => {
+    const { videoId } = req.params
+    //TODO: update video details like title, description, thumbnail
+
+    const {title,description} = req.body
+
+    if(!isValidObjectId(videoId)){
+        throw new ApiError(404,"invalid video id")
+    }
+
+    if(!title?.trim() || !description?.trim()){
+        throw new ApiError(403,"invalid title/description")
+    }
+
+    const thumbnailLocalPath = req.file?.path;
+
+    const thumbnail = await uploadOnCloudinary(thumbnailLocalPath)
+
+    const loggedInUser = req.user?._id
+
+    const videoOwner = await Video.findById(videoId).select("owner -_id")
+
+    if(videoOwner.owner.toString()!==loggedInUser.toString()){
+        throw new ApiError(403,"You are not the actual owner of this video")
+    }
+
+    const updateTheVideo = await Video.findByIdAndUpdate(
+        videoId,
+        {
+            $set:{
+                title,
+                description,
+                thumbnail:thumbnail?.url || ""   
+            }
+        },
+        {
+            new:true
+        }
+    )
+
+    if(!updateTheVideo){
+        throw new ApiError(500,"something went wrong while updating the video")
+    }
+
+    return res.status(200).json(new ApiResponse(200,updateTheVideo,"video details updated successfully"))
+
+
+})
+
+const deleteVideo = asyncHandler(async (req, res) => {
+    const { videoId } = req.params
+    if(!videoId){
+        throw new ApiError(400,"invalid video id")
+    }
+
+    const loggedInUser = req.user?._id
+
+    if(!loggedInUser){
+        throw new ApiError(401,"User didn't logged in properly ")
+    }
+
+    const videoById = await Video.findByIdAndDelete(videoId)
+
+    if(!videoById){
+        throw new ApiError(500,"something went wrong while deleting video by Id")
+    }
+
+    if(videoById.length===0){
+        throw new ApiError(404,"No video found with given ID")
+    }
+
+    return res.status(200).json(new ApiResponse(200,videoById,"deleted video by ID"))
+    //TODO: delete video
+})
+
+const togglePublishStatus = asyncHandler(async (req, res) => {
+    const { videoId } = req.params
+
+    if(!isValidObjectId(videoId)){
+        throw new ApiError(400,"invalid video id")
+    }
+
+    const loggedInUser = req.user?._id
+
+    if(!loggedInUser){
+        throw new ApiError(401,"invalid user")
+    }
+
+    const checkVideoOwner = await Video.findById(videoId).select("owner")
+
+    if(!checkVideoOwner){
+        throw new ApiError(404,"video not found")
+    }
+
+    if(!checkVideoOwner.owner.equals(loggedInUser)){
+        throw new ApiError(401,"you are Not the owner of this video >..<")
+    }
+
+    const toggleStatus = await Video.findById(videoId)
+    
+    toggleStatus.isPublished = !toggleStatus.isPublished
+    
+    await toggleStatus.save()
+
+    if(!toggleStatus){
+        throw new ApiError(500,"something went wrong while changing the status of video")
+    }
+    
+        return res.status(200).json(new ApiResponse(200,toggleStatus,"video publish status changed successfully"))
+})
+
+export {
+    getAllVideos,
+    publishAVideo,
+    getVideoById,
+    updateVideo,
+    deleteVideo,
+    togglePublishStatus
+}

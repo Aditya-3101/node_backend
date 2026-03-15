@@ -139,11 +139,6 @@ const removeVideoFromPlaylist = asyncHandler(async (req, res) => {
     if(!playlistId||!videoId){
         throw new ApiError(400,"invalud playlist/video id")
     }
-    // const loggedInUser = req?.user?._id
-
-    // const result = await Playlist.findOneAndDelete({
-    //     _id:playlistId
-    // }
 
     const playlist = await Playlist.findById(playlistId);
     
