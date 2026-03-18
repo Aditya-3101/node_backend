@@ -5,7 +5,6 @@ import {ApiError} from "../utils/ApiError.js"
 import {ApiResponse} from "../utils/ApiResponse.js"
 import {asyncHandler} from "../utils/asyncHandler.js"
 
-
 const createPlaylist = asyncHandler(async (req, res) => {
     const {name, description} = req.body
 
@@ -85,26 +84,11 @@ const addVideoToPlaylist = asyncHandler(async (req, res) => {
         throw new ApiError(400,"invalid playlist/video id")
     }
 
+    console.log(playlistId + " "+videoId)
+
     const loggedInUser = req.user?._id
 
-    // const addvideoInPlaylist = await Playlist.findOneAndUpdate(
-    //     {
-    //         owner:loggedInUser
-    //     },
-    //     {
-    //         $addToSet:{
-    //             videos:videoId
-    //         }
-    //     },
-    //     {
-    //         new:true
-    //     }
-    // )
-
-    // if(!addvideoInPlaylist){
-    //     throw new ApiError(500,"something went wrong while adding video into playlist")
-    // }
-
+    const playlist = await Playlist.findOne({_id:playlistId})
 
 
 if (playlist.owner.toString() != (req.user._id).toString()) {
@@ -130,7 +114,6 @@ try {
     throw new ApiError(500, "Unable to add video to the playlist")
 }
 })
-
 
 const removeVideoFromPlaylist = asyncHandler(async (req, res) => {
     const {playlistId, videoId} = req.params
