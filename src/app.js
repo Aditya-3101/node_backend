@@ -23,7 +23,7 @@ import tweetRouter from "./routes/tweet.routes.js"
 import playlistRouter from "./routes/playlist.routes.js"
 import commentRouter from "./routes/comment.routes.js"
 import videoRouter from "./routes/video.routes.js"
-import { healthcheckRouter } from "./controllers/healthcheck.controller.js"
+import healthcheckRouter  from "./routes/healthcheck.routes.js"
 
 
 //routes declaration
