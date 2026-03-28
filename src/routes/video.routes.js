@@ -6,6 +6,7 @@ import {
     publishAVideo,
     togglePublishStatus,
     updateVideo,
+    getVideosFromAllusers
 } from "../controllers/video.controller.js"
 import {verifyJWT} from "../middlewares/auth.middleware.js"
 import {upload} from "../middlewares/multer.milddleware.js"
@@ -30,6 +31,8 @@ router
         ]),
         publishAVideo
     );
+
+router.route('/all/v').get(getVideosFromAllusers)
 
 router
     .route("/:videoId")

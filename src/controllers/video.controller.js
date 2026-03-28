@@ -40,6 +40,27 @@ const getAllVideos = asyncHandler(async (req, res) => {
     
 })
 
+const getVideosFromAllusers = asyncHandler(async(req,res)=>{
+     const loggedInUser = req.user?._id;
+
+     if(!loggedInUser){
+        return new ApiError(400,"user didn't logged in")
+     }
+
+     //const result = await Video.find().limit(25).select("-__v")
+
+     const result = await Video.find({ isPublished: true })
+     .populate("owner", "username avatar")
+     .sort({ createdAt: -1 });
+     
+
+     if(!result){
+        return new ApiError(500,"something went wrong while fetching all videos")
+     }
+
+     return res.status(200).json(new ApiResponse(200,result,"all available videos fetched"))
+})
+
 const publishAVideo = asyncHandler(async (req, res) => {
     const { title, description} = req.body
     // TODO: get video, upload to cloudinary, create video
@@ -99,7 +120,7 @@ const getVideoById = asyncHandler(async (req, res) => {
         throw new ApiError(401,"User didn't logged in properly ")
     }
 
-    const videoById = await Video.findById(videoId)
+    const videoById = await Video.findById(videoId).populate("owner","username avatar")
 
     if(!videoById){
         throw new ApiError(500,"something went wrong while fetching video by Id")
@@ -231,5 +252,6 @@ export {
     getVideoById,
     updateVideo,
     deleteVideo,
-    togglePublishStatus
+    togglePublishStatus,
+    getVideosFromAllusers
 }
