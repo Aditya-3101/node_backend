@@ -28,12 +28,31 @@ const getVideoComments = asyncHandler(async (req, res) => {
             }
         },
         {
-            $project:{
-                comment:1,
-                owner:1,
-                createdAt:1
+            $lookup: {
+              from: "users",
+              localField: "owner",
+              foreignField: "_id",
+              as: "owner"
             }
-        }
+          },
+          {
+            $unwind: {
+                path:"$owner",
+                preserveNullAndEmptyArrays:true
+            },
+          },
+          {
+            $project:{
+                _id:1,
+                comment:1,
+                video:1,
+                createdAt:1,
+                updatedAt:1,
+                "owner._id":1,
+                "owner.avatar":1,
+                "owner.username":1
+            }
+          }
     ])
 
     const result = await Comment.aggregatePaginate(aggregate, {

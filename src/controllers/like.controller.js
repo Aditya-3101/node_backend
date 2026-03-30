@@ -1,4 +1,4 @@
-import mongoose from 'mongoose'
+import mongoose, { isValidObjectId } from 'mongoose'
 import {Like} from '../models/like.model.js'
 import {Video} from "../models/video.model.js"
 import {Comment} from "../models/comment.model.js"
@@ -205,9 +205,26 @@ const getLikedVideos = asyncHandler(async(req,res)=>{
     .json(new ApiResponse(200,likedVideos[0].watchHistory,"Liked videos fetched successfully"))
 })
 
+const getvideoLikes = asyncHandler(async(req,res)=>{
+    const {videoId} = req.params;
+
+    if(!isValidObjectId(videoId)){
+        throw new ApiError(400,"invalid video id")
+    }
+
+    const result = await Like.findOne({video:videoId}).countDocuments()
+
+    if(!result){
+        throw new ApiError(500,"something went wrong while fetching likes")
+    }
+
+    return res.status(200).json(new ApiResponse(200,result,"fetched video likes count"))
+})
+
 export {
     toggleCommentLike,
     toggleTweetLike,
     toggleVideoLike,
-    getLikedVideos
+    getLikedVideos,
+    getvideoLikes
 }
