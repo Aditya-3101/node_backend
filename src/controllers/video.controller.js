@@ -1,7 +1,6 @@
 
 import mongoose, {isValidObjectId} from "mongoose"
 import {Video} from "../models/video.model.js"
-import {User} from "../models/user.model.js"
 import {ApiError} from "../utils/ApiError.js"
 import {ApiResponse} from "../utils/ApiResponse.js"
 import {asyncHandler} from "../utils/asyncHandler.js"
@@ -246,6 +245,40 @@ const togglePublishStatus = asyncHandler(async (req, res) => {
         return res.status(200).json(new ApiResponse(200,toggleStatus,"video publish status changed successfully"))
 })
 
+const getMoreVideos = asyncHandler(async (req, res) => {
+
+    const { videoId } = req.params
+
+    if(!isValidObjectId(videoId)){
+        throw new ApiError(400,"invalid video id")
+    }
+
+    const loggedInUser = req.user?._id;
+
+    if(!loggedInUser){
+       return new ApiError(400,"user didn't logged in")
+    }
+
+    //const result = await Video.find().limit(25).select("-__v")
+
+    const result = await Video.find({ _id:{$ne:videoId}, isPublished: true })
+    .populate("owner", "username avatar")
+    .sort({ createdAt: -1 })
+    .limit(20);
+    
+
+    if(!result){
+       return new ApiError(500,"something went wrong while fetching all videos")
+    }
+
+    return res.status(200).json(new ApiResponse(200,result,"all available videos fetched"))
+
+    //TODO: get video by id
+})
+
+
+
+
 export {
     getAllVideos,
     publishAVideo,
@@ -253,5 +286,6 @@ export {
     updateVideo,
     deleteVideo,
     togglePublishStatus,
-    getVideosFromAllusers
+    getVideosFromAllusers,
+    getMoreVideos
 }
