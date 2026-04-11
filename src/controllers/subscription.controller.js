@@ -148,6 +148,18 @@ const getSubscribedChannels = asyncHandler(async (req, res) => {
                 foreignField:"_id",
                 as:"subscribedTo"
             }
+        },
+        {
+            $project:{
+                subscribedTo:{
+                    _id:1,
+                    username:1,
+                    email:1,
+                    fullName:1,
+                    avatar:1,
+                    coverImage:1,
+                }
+            }
         }
     ])
 

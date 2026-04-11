@@ -27,11 +27,15 @@ const getAllVideos = asyncHandler(async (req, res) => {
         filter.title = {$regex:query, $options:"i"}
     }
 
-    const sort = {
-        [sortBy] : sortType === "asc" ? 1 : -1
-    }
+    // const sort = {
+    //     [sortBy] : sortType === "asc" ? 1 : -1
+    // }
 
-    const allVideos = await Video.find(filter).sort(sort).skip(skip).limit(parseInt(limit))
+    const sort = sortBy
+  ? { [sortBy]: sortType === "asc" ? 1 : -1 }
+  : { createdAt: -1 }
+
+    const allVideos = await Video.find(filter).populate("owner","fullName avatar").sort(sort).skip(skip).limit(parseInt(limit))
 
     const allVideoCount = await Video.countDocuments(filter)
 
