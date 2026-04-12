@@ -121,8 +121,6 @@ const getSubscribedChannels = asyncHandler(async (req, res) => {
 
     const subscriberId=channelId
 
-    console.log(req.params)
-
     //In above algo(getUserChannelSubscribers) replace subsciber with channel and channel with subscriber
 
     if(!isValidObjectId(subscriberId)){
@@ -150,20 +148,33 @@ const getSubscribedChannels = asyncHandler(async (req, res) => {
             }
         },
         {
+            $unwind:"$subscribedTo",
+        },
+        {
+            $group:{
+                _id:"$subscriber",
+                    
+                    subscribedTo:{
+                        $push:{
+                            _id:"$subscribedTo._id",
+                            username:"$subscribedTo.username",
+                            email:"$subscribedTo.email",
+                            fullName:"$subscribedTo.fullName",
+                            avatar:"$subscribedTo.avatar",
+                            coverImage:"$subscribedTo.coverImage"
+                        }
+                    }
+            }
+        },
+        {
             $project:{
-                subscribedTo:{
-                    _id:1,
-                    username:1,
-                    email:1,
-                    fullName:1,
-                    avatar:1,
-                    coverImage:1,
-                }
+                _id:1,
+                subscribedTo:1
             }
         }
     ])
 
-    return res.status(200).json(new ApiResponse(200,result[0],"user's subscribed channels"))
+    return res.status(200).json(new ApiResponse(200,result,"user's subscribed channels"))
 
 })
 
