@@ -6,6 +6,7 @@ import {Tweet} from "../models/tweet.model.js"
 import { ApiError } from '../utils/ApiError.js'
 import { ApiResponse } from '../utils/ApiResponse.js'
 import { asyncHandler } from '../utils/asyncHandler.js'
+import { getVideoById } from './video.controller.js'
 
 const toggleVideoLike = asyncHandler(async(req,res)=>{
     const {videoId} = req.params
@@ -24,36 +25,36 @@ const toggleVideoLike = asyncHandler(async(req,res)=>{
 
     const video = await Video.findById(videoId)
 
+    if(!video){
+        throw new ApiError(404,"video not found")
+    }
+
     if(!loggedInUser){
         throw new ApiError(400,"user didn't logged in")
     }
 
-    const checkLike = await Like.findOneAndDelete({
+    const deleteLike = await Like.findOneAndDelete({
         likedBy:loggedInUser,
-        video:video
+        video:videoId
     })
 
-    if(checkLike){
-        return res.status(200).json(new ApiResponse(200,"Like has been removed"))
+    if(!deleteLike){
+       const updateLike = await Like.create({
+         likedBy:loggedInUser,
+         video:videoId
+     })    
     }
 
-    if(!checkLike){
-        const updateLike = await Like.create({
-        likedBy:loggedInUser,
-        video:video
-    })
+    const likeCount = await Like.countDocuments({video:videoId})
 
-    const likedVideo = await Like.findById(updateLike._id)
+    const likedByUser = !deleteLike
 
-
-    if(!likedVideo){
-        throw new ApiError(503,"Something went wrong :(")
-    }
-
-    return res.status(200)
-    .json(new ApiResponse(200,likedVideo,"You have liked the video :)"))
-
-}
+    return res.status(200).json(
+        new ApiResponse(200, {
+          likeCount,
+          likedByUser
+        }, "Like toggled successfully")
+      )
 
 })
 

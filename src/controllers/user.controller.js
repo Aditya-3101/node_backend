@@ -4,7 +4,7 @@ import {User} from '../models/user.model.js'
 import {ApiResponse} from '../utils/ApiResponse.js'
 import {uploadOnCloudinary} from '../utils/cloudnary.js'
 import jwt from "jsonwebtoken";
-import mongoose from "mongoose";
+import mongoose, { isValidObjectId } from "mongoose";
 
 const generateAcessAndRefreshTokens = async(userId) => {
     try{
@@ -457,7 +457,46 @@ const getWatchHistory = asyncHandler(async(req,res)=>{
 
     return  res
     .status(200)
-    .json(new ApiResponse(200,user[0].watchHistory,"Watach history fetched successfully"))
+    .json(new ApiResponse(200,user[0].watchHistory,"Watch history fetched successfully"))
+})
+
+const pushVideosIntoHistory = asyncHandler(async(req,res)=>{
+    const {videoId} = req.body
+
+    if(!isValidObjectId(videoId)){
+        throw new ApiError(400,"Invalid video ID")
+    }
+
+    const loggedInUser = req.user
+
+    if(!loggedInUser){
+        throw new ApiError(400,"user didn't logged in")
+    }
+
+    await User.findByIdAndUpdate(loggedInUser._id,{
+        $pull:{
+            watchHistory:{
+                "video":videoId
+            }
+        }
+    })
+
+    const result = await User.findByIdAndUpdate(loggedInUser._id,{
+        $push:{
+            watchHistory:{
+                "video":videoId,
+                "watchedOn":new Date().toISOString()
+            }
+        }
+    },{
+        new:true
+    }).select("_id username fullName createdAt watchHistory")
+
+    if(!result){
+        throw new ApiError(500,"something went wrong while pushing videos into watchhistory")
+    }
+
+    return res.status(200).json(new ApiResponse(200,result,"videos pushed into watch history sucessfully"))
 })
 
 export {
@@ -471,5 +510,6 @@ export {
     updateUserAvatar,
     updateUserCoverImage,
     getUserChannelProfile,
-    getWatchHistory
+    getWatchHistory,
+    pushVideosIntoHistory
 }
