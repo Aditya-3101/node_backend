@@ -311,6 +311,34 @@ const getVideosfromSubscribedChannel = asyncHandler(async (req, res) => {
     //TODO: get video by id
 })
 
+const getVideosFromPlaylist = asyncHandler(async (req, res) => {
+
+    const { videos } = req.body
+
+    // if(!isValidObjectId(channelId)){
+    //     throw new ApiError(400,"invalid video id")
+    // }
+
+    const loggedInUser = req.user?._id;
+
+    if(!loggedInUser){
+       return new ApiError(400,"user didn't logged in")
+    }
+
+    //const result = await Video.find().limit(25).select("-__v")
+
+    const result = await Video.find({_id:{$in:videos}}).select("_id thumbnail owner title duration views createdAt isPublished createdAt").populate("owner", "fullName username avatar")
+    
+
+    if(!result){
+       return new ApiError(500,"something went wrong while fetching all videos from subscribed channel")
+    }
+
+    return res.status(200).json(new ApiResponse(200,result,"all available videos from playlist fetched"))
+
+    //TODO: get video by id
+})
+
 
 export {
     getAllVideos,
@@ -321,5 +349,6 @@ export {
     togglePublishStatus,
     getVideosFromAllusers,
     getMoreVideos,
-    getVideosfromSubscribedChannel
+    getVideosfromSubscribedChannel,
+    getVideosFromPlaylist
 }

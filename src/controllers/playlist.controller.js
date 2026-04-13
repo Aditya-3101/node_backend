@@ -59,6 +59,24 @@ const getUserPlaylists = asyncHandler(async (req, res) => {
 
 })
 
+// const getVideosFromPlaylist = asyncHandler(async (req, res) => {
+//     const {playlistId} = req.params
+//     //TODO: get playlist by id
+
+//     if(!isValidObjectId(playlistId)){
+//         throw new ApiError(400,"invalid playlist id")
+//     }
+
+//     const playlistById = await Playlist.findById(playlistId).select("videos owner")
+
+//     if(!playlistById){
+//         throw new ApiError(500,"something went wrong while fetching playlist by id")
+//     }
+    
+//     return res.status(200).json(new ApiResponse(200,playlistById,"fetched user playlist by id"))
+    
+// })
+
 const getPlaylistById = asyncHandler(async (req, res) => {
     const {playlistId} = req.params
     //TODO: get playlist by id

@@ -8,7 +8,8 @@ import {
     updateVideo,
     getVideosFromAllusers,
     getMoreVideos,
-    getVideosfromSubscribedChannel
+    getVideosfromSubscribedChannel,
+    getVideosFromPlaylist
 } from "../controllers/video.controller.js"
 import {verifyJWT} from "../middlewares/auth.middleware.js"
 import {upload} from "../middlewares/multer.milddleware.js"
@@ -35,6 +36,7 @@ router
     );
 
 router.route('/all/v').get(getVideosFromAllusers)
+router.route("/playlist").post(getVideosFromPlaylist)
 
 router.route("/v/:videoId").get(getMoreVideos)
 router.route("/subscriptions/v/:channelId").get(getVideosfromSubscribedChannel)
