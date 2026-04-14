@@ -420,44 +420,59 @@ const getWatchHistory = asyncHandler(async(req,res)=>{
             }
         },
         {
+            $unwind:"$watchHistory"
+        },
+        {
             $lookup:{
-            from:"videos",
-            localField:"watchHistory",
-            foreignField:"_id",
-            as:"watchHistory",
-            pipeline:[
-                {
-                    $lookup:{
-                        from:"users",
-                        localField:"owner",
-                        foreignField:"_id",
-                        as:"owner",
-                        pipeline:[
-                            {
-                                $project:{
-                                    fullName:1,
-                                    username:1,
-                                    avatar:1
-                                }
-                            }
-                        ]
-                    }
-                },
-                {
-                    $addFields:{
-                        owner:{
-                            $first:"$owner"
+                from:"videos",
+                localField:"watchHistory.video",
+                foreignField:"_id",
+                as:"video"
+            }
+        },
+        {
+            $addFields:{
+                video:{$first:"$video"}
+            }
+        },
+        {
+            $lookup:{
+                from:"users",
+                localField:"video.owner",
+                foreignField:"_id",
+                as:"owner",
+                pipeline:[
+                    {
+                        $project:{
+                            username:1,
+                            fullName:1,
+                            avatar:1
                         }
                     }
-                }
-            ]
-        }
+                ]
+            },
+        },
+        {
+            $addFields:{
+                "video.owner":{$first:"$owner"}
+            }
+        },
+        {
+            $project:{
+                _id:1,
+                video:1,
+                watchedOn:"$watchHistory.watchedOn"
+            }
         }
     ])
 
+    if(!user){
+        throw new ApiError(500,"something went wrong while fetching history")
+    }
+
     return  res
     .status(200)
-    .json(new ApiResponse(200,user[0].watchHistory,"Watch history fetched successfully"))
+    .json(new ApiResponse(200,user,"Watch history fetched successfully"))
 })
 
 const pushVideosIntoHistory = asyncHandler(async(req,res)=>{
