@@ -9,8 +9,6 @@ const toggleSubscription = asyncHandler(async (req, res) => {
     const {channelId} = req.params
     // TODO: toggle subscription
 
-    console.log(channelId)
-
     if(!isValidObjectId(channelId)){
         throw new ApiError(404,"invalid channel id")
     }
@@ -178,9 +176,35 @@ const getSubscribedChannels = asyncHandler(async (req, res) => {
 
 })
 
+const checkSubscriptionStatus = asyncHandler(async (req,res)=>{
+    const { channelId } = req.params
+
+    if(!isValidObjectId(channelId)){
+        throw new ApiError(400,"invalid channel Id")
+    }
+
+    const loggedInUser = req.user?._id
+
+    if(!loggedInUser){
+        throw new ApiError(400,"User didnt logged in")
+    }
+
+    const result = await Subscription.findOne({subscriber:loggedInUser,channel:channelId})
+
+    if(result===undefined){
+        throw new ApiError(500,"something went wrong while checking subscription")
+    }
+
+
+
+    return res.status(200).json(new ApiResponse(200,result,"Checking subscription endpoint called"))
+
+})
+
 export {
     toggleSubscription,
     getUserChannelSubscribers,
     getSubscribedChannels,
-    subscriberCount
+    subscriberCount,
+    checkSubscriptionStatus
 }

@@ -165,6 +165,7 @@ const getLikedVideos = asyncHandler(async(req,res)=>{
                 likedBy: new mongoose.Types.ObjectId(userId)
             }
         },
+        
         {
             $lookup:{
                 from:"videos",
@@ -198,12 +199,21 @@ const getLikedVideos = asyncHandler(async(req,res)=>{
                     }
                 ]
             }
-        }
+        },
+        {
+            $project:{
+                _id:1,
+                likedVideo:1
+            }
+        },
+        {
+            $unwind: "$likedVideo"
+        },
     ])
 
     return  res
     .status(200)
-    .json(new ApiResponse(200,likedVideos[0].watchHistory,"Liked videos fetched successfully"))
+    .json(new ApiResponse(200,likedVideos,"Liked videos fetched successfully"))
 })
 
 const getvideoLikes = asyncHandler(async(req,res)=>{

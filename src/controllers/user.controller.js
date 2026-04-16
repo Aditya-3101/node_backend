@@ -1,6 +1,7 @@
 import { asyncHandler } from "../utils/asyncHandler.js";
 import {ApiError} from '../utils/ApiError.js'
 import {User} from '../models/user.model.js'
+import { Video } from "../models/video.model.js";
 import {ApiResponse} from '../utils/ApiResponse.js'
 import {uploadOnCloudinary} from '../utils/cloudnary.js'
 import jwt from "jsonwebtoken";
@@ -493,6 +494,12 @@ const pushVideosIntoHistory = asyncHandler(async(req,res)=>{
             watchHistory:{
                 "video":videoId
             }
+        }
+    })
+
+    await Video.findByIdAndUpdate(videoId,{
+        $inc:{
+            views:1
         }
     })
 
