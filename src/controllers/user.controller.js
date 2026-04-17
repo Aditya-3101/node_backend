@@ -62,10 +62,6 @@ const registerUser = asyncHandler(async(req,res)=>{
     }
     //const coverImageLocalPath = req.files?.coverImage?.[0]?.path;
 
-    console.log("BODY:", req.body)
-console.log("FILES:", req.files)
-console.log("FILES KEYS:", Object.keys(req.files || {}))
-
     if(!avatarLocalPath){
         throw new ApiError(400,"pfp is not uploaded :(")
     }
@@ -265,8 +261,17 @@ const changeCurrentUserPassword = asyncHandler(async(req,res)=>{
 })
 
 const getCurrentUser = asyncHandler(async(req,res)=>{
+    const response = {
+        _id:req.user._id,
+        username:req.user.username,
+        email:req.user.email,
+        fullName:req.user.fullName,
+        avatar:req.user.avatar,
+        coverImage:req.user.coverImage,
+        createdAt:req.user.createdAt
+    }
     return res.status(200)
-    .json( new ApiResponse(200,req.user,"current user fetched successfully"))
+    .json( new ApiResponse(200,response,"current user fetched successfully"))
 })
 
 const updateAccountDetails = asyncHandler(async(req,res)=>{

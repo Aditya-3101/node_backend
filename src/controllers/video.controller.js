@@ -21,7 +21,7 @@ const getAllVideos = asyncHandler(async (req, res) => {
         throw new ApiError(403,"invalid user id")
     }
 
-    filter.owner=userId
+    //filter.owner=userId
 
     if(query){
         filter.title = {$regex:query, $options:"i"}
