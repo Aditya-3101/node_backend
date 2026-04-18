@@ -17,11 +17,11 @@ const getAllVideos = asyncHandler(async (req, res) => {
 
     const skip = (parseInt(page) - 1)*limit
 
-    if(!isValidObjectId(userId)){
+    if(userId && !isValidObjectId(userId)){
         throw new ApiError(403,"invalid user id")
     }
 
-    //filter.owner=userId
+    if(userId) filter.owner=userId
 
     if(query){
         filter.title = {$regex:query, $options:"i"}
