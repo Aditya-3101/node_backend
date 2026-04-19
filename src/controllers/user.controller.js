@@ -312,7 +312,7 @@ const updateUserAvatar = asyncHandler(async(req,res)=>{
                 avatar:avatar.url
             }
         },{new:true}
-    ).select("-password")
+    ).select("-password -refreshToken -watchHistory")
 
 
 
