@@ -287,7 +287,7 @@ const updateAccountDetails = asyncHandler(async(req,res)=>{
             fullName,
             email
         }
-    }).select("-password")
+    }).select("-password -refreshToken -watchHistory")
 
     return res.status(200).json(new ApiResponse(200,user,"Account Details updated successfully"))
 })
@@ -339,7 +339,11 @@ const updateUserCoverImage = asyncHandler(async(req,res)=>{
                 coverImage:coverImage.url
             }
         },{new:true}
-    ).select("-password")
+    ).select("-password -refreshToken -watchHistory")
+
+    if(!user){
+        throw new ApiError(500,"something went wrong while updating cover image")
+    }
 
     return res.status(200).json(new ApiResponse(200,user,"Cover image updated successfully"))
 })
