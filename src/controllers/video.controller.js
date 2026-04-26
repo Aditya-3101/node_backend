@@ -53,7 +53,7 @@ const getVideosFromAllusers = asyncHandler(async(req,res)=>{
      //const result = await Video.find().limit(25).select("-__v")
 
      const result = await Video.find({ isPublished: true })
-     .populate("owner", "username avatar")
+     .populate("owner", "username avatar fullName")
      .sort({ createdAt: -1 });
      
 
@@ -263,10 +263,8 @@ const getMoreVideos = asyncHandler(async (req, res) => {
        return new ApiError(400,"user didn't logged in")
     }
 
-    //const result = await Video.find().limit(25).select("-__v")
-
     const result = await Video.find({ _id:{$ne:videoId}, isPublished: true })
-    .populate("owner", "username avatar")
+    .populate("owner", "username avatar fullName")
     .sort({ createdAt: -1 })
     .limit(20);
     
@@ -277,7 +275,6 @@ const getMoreVideos = asyncHandler(async (req, res) => {
 
     return res.status(200).json(new ApiResponse(200,result,"all available videos fetched"))
 
-    //TODO: get video by id
 })
 
 const getVideosfromSubscribedChannel = asyncHandler(async (req, res) => {

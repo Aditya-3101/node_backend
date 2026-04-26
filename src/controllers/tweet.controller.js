@@ -69,23 +69,55 @@ const getUserTweets = asyncHandler(async(req,res)=>{
         throw new ApiError(401,"user has not logged in")
     }
 
-    const userTweet = await Tweet.aggregate([
+    const userTweets2 = await Tweet.aggregate([
         {
-            $match:{
-                owner:userId
-            }
-        },
-        {
-            $project:{ _id:0, content:1 }
+        $match:{
+            owner:new mongoose.Types.ObjectId(userId)
         }
+    },
+    {
+        $lookup:{
+            from:"likes",
+            localField:"_id",
+            foreignField:"tweet",
+            as:"tweet_likes"
+        }
+    },
+    {
+        $addFields:{
+            likeCount:{$size:"$tweet_likes"},
+            isLiked: {
+                $in: [new mongoose.Types.ObjectId(userId), "$tweet_likes.likedBy"]
+            }
+        }
+    },
+    {
+        $lookup:{
+            from:"users",
+            localField:"owner",
+            foreignField:"_id",
+            as:"user_detail"
+        }
+    },
+    {
+        $project:{
+            _id:1,
+            content:1,
+            likeCount:1,
+            isLiked:1,
+            createdAt:1,
+            avatar:{$first:"$user_detail.avatar"},
+            username:{$first:"$user_detail.username"}
+        }
+    }
     ])
 
-    if(!userTweet){
+    if(!userTweets2){
         throw new ApiError(500,"Internal server Error")
     }
 
     return res.status(200)
-    .json(new ApiResponse(200,userTweet[0],"users posts fetched sucessfully"))
+    .json(new ApiResponse(200,userTweets2,"users posts fetched sucessfully"))
 })
 
 const updateTweet = asyncHandler(async(req,res)=>{

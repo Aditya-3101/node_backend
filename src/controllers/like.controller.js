@@ -115,10 +115,14 @@ const toggleTweetLike = asyncHandler(async(req,res)=>{
     2- If already liked then remove from database
     3- If not then add in database
     */
-
-    if(!tweetId?.trim()){
+    if(!isValidObjectId(tweetId)){
         throw new ApiError(400,"post/tweet is not valid :(")
+
     }
+
+    // if(!tweetId?.trim()){
+    //     throw new ApiError(400,"post/tweet is not valid :(")
+    // }
 
     const loggedInUser = req.user?._id
 
@@ -155,6 +159,7 @@ const toggleTweetLike = asyncHandler(async(req,res)=>{
 
 }
 })
+
 
 const getLikedVideos = asyncHandler(async(req,res)=>{
     const userId = req.user?._id
@@ -237,5 +242,5 @@ export {
     toggleTweetLike,
     toggleVideoLike,
     getLikedVideos,
-    getvideoLikes
+    getvideoLikes,
 }
