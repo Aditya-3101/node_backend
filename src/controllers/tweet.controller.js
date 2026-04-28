@@ -1,11 +1,9 @@
-import { Mongoose,isValidObjectId} from "mongoose";
+import { isValidObjectId} from "mongoose";
 import mongoose from "mongoose";
 import { Tweet } from "../models/tweet.model.js";
 import { ApiError } from "../utils/ApiError.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
-import { User } from "../models/user.model.js";
-
 
 
 const createTweet = asyncHandler(async(req,res)=>{
@@ -73,6 +71,11 @@ const getUserTweets = asyncHandler(async(req,res)=>{
         {
         $match:{
             owner:new mongoose.Types.ObjectId(userId)
+        }
+    },
+    {
+        $sort:{
+            createdAt:-1
         }
     },
     {
