@@ -8,14 +8,14 @@ import {uploadOnCloudinary} from "../utils/cloudnary.js"
 
 
 const getAllVideos = asyncHandler(async (req, res) => {
-    const { page = 1, limit = 10, query, sortBy, sortType, userId } = req.query
+    const { page = 1, limit = 2, query, sortBy, sortType, userId } = req.query
     //TODO: get all videos based on query, sort, pagination
 
     const filter = {
         isPublished:true,
     }
 
-    const skip = (parseInt(page) - 1)*limit
+    const skip = (parseInt(page) - 1)*parseInt(limit)
 
     if(userId && !isValidObjectId(userId)){
         throw new ApiError(403,"invalid user id")
@@ -46,22 +46,32 @@ const getAllVideos = asyncHandler(async (req, res) => {
 const getVideosFromAllusers = asyncHandler(async(req,res)=>{
      const loggedInUser = req.user?._id;
 
+     const {page=1,limit=1} = req.query
+
      if(!loggedInUser){
         return new ApiError(400,"user didn't logged in")
      }
+
+     const skip = (parseInt(page)-1)*(parseInt(limit))
 
      //const result = await Video.find().limit(25).select("-__v")
 
      const result = await Video.find({ isPublished: true })
      .populate("owner", "username avatar fullName")
-     .sort({ createdAt: -1 });
+     .sort({ createdAt: -1 }).skip(skip).limit(parseInt(limit));
      
+     const videosCount = await Video.countDocuments()
 
      if(!result){
         return new ApiError(500,"something went wrong while fetching all videos")
      }
 
-     return res.status(200).json(new ApiResponse(200,result,"all available videos fetched"))
+     return res.status(200).json(new ApiResponse(200,{
+        result,
+        videosCount:videosCount,
+        page:parseInt(page),
+        limit:parseInt(limit)
+    },"all available videos fetched"))
 })
 
 const publishAVideo = asyncHandler(async (req, res) => {

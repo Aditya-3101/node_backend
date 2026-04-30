@@ -6,7 +6,6 @@ import {Tweet} from "../models/tweet.model.js"
 import { ApiError } from '../utils/ApiError.js'
 import { ApiResponse } from '../utils/ApiResponse.js'
 import { asyncHandler } from '../utils/asyncHandler.js'
-import { getVideoById } from './video.controller.js'
 
 const toggleVideoLike = asyncHandler(async(req,res)=>{
     const {videoId} = req.params
@@ -228,11 +227,7 @@ const getvideoLikes = asyncHandler(async(req,res)=>{
         throw new ApiError(400,"invalid video id")
     }
 
-    const result = await Like.findOne({video:videoId}).countDocuments()
-
-    if(!result){
-        throw new ApiError(500,"something went wrong while fetching likes")
-    }
+    const result = await Like.countDocuments({video:videoId})
 
     return res.status(200).json(new ApiResponse(200,result,"fetched video likes count"))
 })
