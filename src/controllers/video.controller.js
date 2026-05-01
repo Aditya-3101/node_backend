@@ -1,5 +1,5 @@
 
-import mongoose, {isValidObjectId} from "mongoose"
+import {isValidObjectId} from "mongoose"
 import {Video} from "../models/video.model.js"
 import {ApiError} from "../utils/ApiError.js"
 import {ApiResponse} from "../utils/ApiResponse.js"
@@ -8,7 +8,7 @@ import {uploadOnCloudinary} from "../utils/cloudnary.js"
 
 
 const getAllVideos = asyncHandler(async (req, res) => {
-    const { page = 1, limit = 2, query, sortBy, sortType, userId } = req.query
+    const { page = 1, limit = 10, query, sortBy, sortType, userId } = req.query
     //TODO: get all videos based on query, sort, pagination
 
     const filter = {
@@ -263,6 +263,11 @@ const getMoreVideos = asyncHandler(async (req, res) => {
 
     const { videoId } = req.params
 
+
+    const {page=1,limit=10} = req.query
+
+    const skip =(parseInt(page)-1)*(parseInt(limit))
+
     if(!isValidObjectId(videoId)){
         throw new ApiError(400,"invalid video id")
     }
@@ -276,14 +281,21 @@ const getMoreVideos = asyncHandler(async (req, res) => {
     const result = await Video.find({ _id:{$ne:videoId}, isPublished: true })
     .populate("owner", "username avatar fullName")
     .sort({ createdAt: -1 })
-    .limit(20);
+    .skip(skip).limit(parseInt(limit))
+
+    const videosCount = await Video.countDocuments()
     
 
     if(!result){
        return new ApiError(500,"something went wrong while fetching all videos")
     }
 
-    return res.status(200).json(new ApiResponse(200,result,"all available videos fetched"))
+    return res.status(200).json(new ApiResponse(200,{
+        result,
+        videosCount:videosCount,
+        page:parseInt(page),
+        limit:parseInt(limit)
+    },"all available videos fetched"))
 
 })
 
