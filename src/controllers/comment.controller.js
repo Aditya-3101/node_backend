@@ -7,7 +7,7 @@ import {asyncHandler} from "../utils/asyncHandler.js"
 const getVideoComments = asyncHandler(async (req, res) => {
     //TODO: get all comments for a video
     const {videoId} = req.params
-    const {page = 1, limit = 10} = req.query
+    const {page = 1, limit = 20} = req.query
 
     if(!videoId){
         throw new ApiError(400,"invalid video id")
@@ -15,73 +15,125 @@ const getVideoComments = asyncHandler(async (req, res) => {
 
     const loggedInUser = req.user._id
 
+    // const aggregate = Comment.aggregate([
+    //     {
+    //         $match: {
+    //             video:new mongoose.Types.ObjectId(videoId)
+    //         }
+    //     },
+    //     {
+    //         $lookup:{
+    //             from:"videos",
+    //             localField:"_id",
+    //             foreignField:"video",
+    //             as:"videoComments"
+    //         }
+    //     },
+    //     {
+    //         $lookup:{
+    //             from:"likes",
+    //             localField:"_id",
+    //             foreignField:"comment",
+    //             as:"comment_likes"
+    //         }
+    //     },
+    //     {
+    //         $addFields:{
+    //             commentLikeCount:{$size:"$comment_likes"},
+    //             isLiked:{
+    //                 $in:[new mongoose.Types.ObjectId(loggedInUser), "$comment_likes.likedBy"]
+    //             }
+    //         }
+    //     },
+    //     {
+    //         $lookup: {
+    //           from: "users",
+    //           localField: "owner",
+    //           foreignField: "_id",
+    //           as: "owner"
+    //         }
+    //     },
+    //       {
+    //         $unwind: {
+    //             path:"$owner",
+    //             preserveNullAndEmptyArrays:true
+    //         },
+    //       },
+    //        {
+    //         $project:{
+    //              _id:1,
+    //              comment:1,
+    //              video:1,
+    //              createdAt:1,
+    //              updatedAt:1,
+    //              "owner._id":1,
+    //              "owner.avatar":1,
+    //              "owner.username":1,
+    //              "comment_likes._id":1,
+    //              "comment_likes.likedBy":1,
+    //              commentLikeCount:1,
+    //              isLiked:1
+    //          }
+    //        }
+    // ])
+
     const aggregate = Comment.aggregate([
         {
-            $match: {
-                video:new mongoose.Types.ObjectId(videoId)
-            }
+          $match: {
+            video: new mongoose.Types.ObjectId(videoId)
+          }
         },
         {
-            $lookup:{
-                from:"videos",
-                localField:"_id",
-                foreignField:"video",
-                as:"videoComments"
-            }
+          $sort: { createdAt: -1 } // 👈 important
         },
         {
-            $lookup:{
-                from:"likes",
-                localField:"_id",
-                foreignField:"comment",
-                as:"comment_likes"
-            }
+          $lookup: {
+            from: "likes",
+            localField: "_id",
+            foreignField: "comment",
+            as: "comment_likes"
+          }
         },
         {
-            $addFields:{
-                commentLikeCount:{$size:"$comment_likes"},
-                isLiked:{
-                    $in:[new mongoose.Types.ObjectId(loggedInUser), "$comment_likes.likedBy"]
-                }
+          $addFields: {
+            commentLikeCount: { $size: "$comment_likes" },
+            isLiked: {
+              $in: [
+                new mongoose.Types.ObjectId(loggedInUser),
+                "$comment_likes.likedBy"
+              ]
             }
+          }
         },
-        // {
-        //     $unwind:{
-        //         path:"$comment_likes",
-        //         preserveNullAndEmptyArrays:true
-        //     }
-        // },
         {
-            $lookup: {
-              from: "users",
-              localField: "owner",
-              foreignField: "_id",
-              as: "owner"
-            }
+          $lookup: {
+            from: "users",
+            localField: "owner",
+            foreignField: "_id",
+            as: "owner"
+          }
         },
-          {
-            $unwind: {
-                path:"$owner",
-                preserveNullAndEmptyArrays:true
-            },
-          },
-           {
-            $project:{
-                 _id:1,
-                 comment:1,
-                 video:1,
-                 createdAt:1,
-                 updatedAt:1,
-                 "owner._id":1,
-                 "owner.avatar":1,
-                 "owner.username":1,
-                 "comment_likes._id":1,
-                 "comment_likes.likedBy":1,
-                 commentLikeCount:1,
-                 isLiked:1
-             }
-           }
-    ])
+        {
+          $unwind: {
+            path: "$owner",
+            preserveNullAndEmptyArrays: true
+          }
+        },
+        {
+          $project: {
+            _id: 1,
+            comment: 1,
+            video: 1,
+            createdAt: 1,
+            updatedAt: 1,
+            "owner._id": 1,
+            "owner.avatar": 1,
+            "owner.username": 1,
+            commentLikeCount: 1,
+            isLiked: 1
+          }
+        }
+      ]);
 
     const result = await Comment.aggregatePaginate(aggregate, {
         page: Number(page),
