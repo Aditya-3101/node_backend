@@ -159,7 +159,6 @@ const toggleTweetLike = asyncHandler(async(req,res)=>{
 }
 })
 
-
 const getLikedVideos = asyncHandler(async(req,res)=>{
     const userId = req.user?._id
 
@@ -223,13 +222,43 @@ const getLikedVideos = asyncHandler(async(req,res)=>{
 const getvideoLikes = asyncHandler(async(req,res)=>{
     const {videoId} = req.params;
 
+    const loggedInUser = req.user._id
+
     if(!isValidObjectId(videoId)){
         throw new ApiError(400,"invalid video id")
     }
 
-    const result = await Like.countDocuments({video:videoId})
+    const result2 = await Like.aggregate([
+        {
+            $match:{
+                video: new mongoose.Types.ObjectId(videoId)
+            }
+        },
+        {
+            $group:{
+                _id:null,
+                likeCount:{$sum:1},
+                likedByUsers:{$push:"$likedBy"}
+            }
+        },
+        {
+            $addFields:{
+                isLiked:{
+                $in:[new mongoose.Types.ObjectId(loggedInUser), "$likedByUsers"]
+                }
+            }
+        },
+        {
+            $project:{
+                _id:1,
+                likeCount:1,
+                isLiked:1
+            }
+        }
+    ])
 
-    return res.status(200).json(new ApiResponse(200,result,"fetched video likes count"))
+
+    return res.status(200).json(new ApiResponse(200,result2,"fetched video likes count"))
 })
 
 export {
