@@ -1,10 +1,4 @@
 {
-<<<<<<< HEAD
         "version": 2, 
         "rewrites": [{ "source": "/(.*)", "destination": "/api" }] 
 }
-=======
-    "version": 2, 
-    "rewrites": [{ "source": "/(.*)", "destination": "/api" }] 
-}
->>>>>>> 02ef22fac90d097232b8b39f799ade1c33212c52
