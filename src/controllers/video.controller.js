@@ -54,7 +54,7 @@ const getVideosFromOwnChannel = asyncHandler(async (req, res) => {
         throw new ApiError(400,"user didn't logged in")
     }
 
-    const currentUser=userId?userId:loggedInUser
+    const currentUser=userId
 
     const allVideos = await Video.find({owner:currentUser}).populate("owner", "username avatar fullName")
     .skip(skip).limit(parseInt(limit))

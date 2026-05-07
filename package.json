@@ -6,7 +6,8 @@
   "type": "module",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "node --watch src/index.js"
+    "dev": "node --watch src/index.js",
+    "vercel-build": "echo hello"
   },
   "keywords": [
     "node",
@@ -26,6 +27,7 @@
     "cors": "^2.8.6",
     "dotenv": "^17.2.4",
     "express": "^5.2.1",
+    "express-rate-limit": "^8.5.1",
     "jsonwebtoken": "^9.0.3",
     "mongoose": "^9.1.6",
     "mongoose-aggregate-paginate-v2": "^1.1.4",
