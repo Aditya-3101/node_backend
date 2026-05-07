@@ -1,5 +1,5 @@
 
-import {isValidObjectId} from "mongoose"
+import mongoose, {isValidObjectId} from "mongoose"
 import {Video} from "../models/video.model.js"
 import {ApiError} from "../utils/ApiError.js"
 import {ApiResponse} from "../utils/ApiResponse.js"
@@ -38,6 +38,28 @@ const getAllVideos = asyncHandler(async (req, res) => {
     const allVideos = await Video.find(filter).populate("owner","fullName avatar").sort(sort).skip(skip).limit(parseInt(limit))
 
     const allVideoCount = await Video.countDocuments(filter)
+
+    return res.status(200).json( new ApiResponse(200,{allVideos,allVideoCount,page:parseInt(page),limit:parseInt(limit)},"videos fetched successfully"))
+    
+})
+
+const getVideosFromOwnChannel = asyncHandler(async (req, res) => {
+    const { page = 1, limit = 10,userId} = req.query
+    //TODO: get all videos based on query, sort, pagination
+    const skip = (parseInt(page) - 1)*parseInt(limit)
+
+    const loggedInUser = req.user
+
+    if(!loggedInUser||!userId){
+        throw new ApiError(400,"user didn't logged in")
+    }
+
+    const currentUser=userId?userId:loggedInUser
+
+    const allVideos = await Video.find({owner:currentUser}).populate("owner", "username avatar fullName")
+    .skip(skip).limit(parseInt(limit))
+
+    const allVideoCount = await Video.countDocuments({owner:loggedInUser._id})
 
     return res.status(200).json( new ApiResponse(200,{allVideos,allVideoCount,page:parseInt(page),limit:parseInt(limit)},"videos fetched successfully"))
     
@@ -369,5 +391,6 @@ export {
     getVideosFromAllusers,
     getMoreVideos,
     getVideosfromSubscribedChannel,
-    getVideosFromPlaylist
+    getVideosFromPlaylist,
+    getVideosFromOwnChannel
 }
