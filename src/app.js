@@ -36,6 +36,10 @@ import videoRouter from "./routes/video.routes.js"
 import healthcheckRouter  from "./routes/healthcheck.routes.js"
 
 
+app.get("/",(req,res)=>{
+    res.json("api called")
+})
+
 //routes declaration
 app.use("/api/v1/healthcheck", healthcheckRouter)
 app.use("/api/v1/users",userRouter)
