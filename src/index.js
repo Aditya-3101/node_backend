@@ -20,14 +20,16 @@ import app  from './app.js';
 //     process.exit(1)
 // })
 
-let isConnected = false;
-
 
 export default async function handler(req, res) {
-    if (!isConnected) {
+  try {
+    if (mongoose.connection.readyState !== 1) {
       await connectDB();
-      isConnected = true;
     }
-  
+
     return app(req, res);
+  } catch (error) {
+    console.error("DB connection failed:", error);
+    res.status(500).json({ message: "DB connection error" });
   }
+}
