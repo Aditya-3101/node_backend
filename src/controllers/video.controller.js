@@ -23,6 +23,8 @@ const getAllVideos = asyncHandler(async (req, res) => {
 
     if(userId) filter.owner=userId
 
+    console.log("COOKIES:", req.cookies);
+
     if(query){
         filter.title = {$regex:query, $options:"i"}
     }
