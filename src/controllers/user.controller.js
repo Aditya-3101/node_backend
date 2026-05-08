@@ -134,7 +134,6 @@ const loginUser = asyncHandler(async(req,res)=>{
         httpOnly:true,
         secure:true,
         sameSite:"none",
-        path:"/"
     }
 
     return res
@@ -204,7 +203,6 @@ const refreshAccessToken = asyncHandler(async(req,res)=>{
             httpOnly:true,
             secure:true,
             sameSite:"none",
-            path:"/"
         }
     
         const {accessToken,refreshToken} = await generateAcessAndRefreshTokens(user._id)
