@@ -1,10 +1,11 @@
 
-import mongoose, {isValidObjectId} from "mongoose"
+import {isValidObjectId} from "mongoose"
 import {Video} from "../models/video.model.js"
 import {ApiError} from "../utils/ApiError.js"
 import {ApiResponse} from "../utils/ApiResponse.js"
 import {asyncHandler} from "../utils/asyncHandler.js"
 import {uploadOnCloudinary} from "../utils/cloudnary.js"
+import fs from 'fs'
 
 
 const getAllVideos = asyncHandler(async (req, res) => {
@@ -126,9 +127,18 @@ const publishAVideo = asyncHandler(async (req, res) => {
     const videoFile = await uploadOnCloudinary(videoLocalPath)
     const thumbnail = await uploadOnCloudinary(thumbnailLocalPath)
 
+
     if(!videoFile|| !thumbnail){
         throw new ApiError(500,"something went wrong while uploading the video/thumbnail :(")
     }
+
+    if (fs.existsSync(videoLocalPath)) {
+        fs.unlinkSync(videoLocalPath);
+        }
+        
+        if (fs.existsSync(thumbnailLocalPath)) {
+        fs.unlinkSync(thumbnailLocalPath);
+        }
 
     const videos = await Video.create({
         videoFile:videoFile.url,
@@ -189,6 +199,10 @@ const updateVideo = asyncHandler(async (req, res) => {
     const thumbnailLocalPath = req.file?.path;
 
     const thumbnail = await uploadOnCloudinary(thumbnailLocalPath)
+        
+        if (fs.existsSync(thumbnailLocalPath)) {
+        fs.unlinkSync(thumbnailLocalPath);
+        }
 
     const loggedInUser = req.user?._id
 

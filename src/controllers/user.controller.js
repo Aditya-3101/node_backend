@@ -6,6 +6,7 @@ import {ApiResponse} from '../utils/ApiResponse.js'
 import {uploadOnCloudinary} from '../utils/cloudnary.js'
 import jwt from "jsonwebtoken";
 import mongoose, { isValidObjectId } from "mongoose";
+import fs from 'fs';
 
 const generateAcessAndRefreshTokens = async(userId) => {
     try{
@@ -69,6 +70,14 @@ const registerUser = asyncHandler(async(req,res)=>{
 
     const avatar = await uploadOnCloudinary(avatarLocalPath)
     const coverImage = await uploadOnCloudinary(coverImageLocalPath)
+
+    if (fs.existsSync(avatarLocalPath)) {
+        fs.unlinkSync(avatarLocalPath);
+        }
+        
+    if (fs.existsSync(coverImageLocalPath)) {
+        fs.unlinkSync(coverImageLocalPath);
+        }
 
 
     if(!avatar){
@@ -302,6 +311,10 @@ const updateUserAvatar = asyncHandler(async(req,res)=>{
 
     const avatar = await uploadOnCloudinary(avatarLocalPath)
 
+    if (fs.existsSync(avatarLocalPath)) {
+        fs.unlinkSync(avatarLocalPath);
+    }
+
     if(!avatar.url){
         throw new ApiError(400,"Error while updating avatar")
     }
@@ -328,6 +341,10 @@ const updateUserCoverImage = asyncHandler(async(req,res)=>{
     }
 
     const coverImage = await uploadOnCloudinary(coverImageLocalPath)
+
+    if (fs.existsSync(coverImageLocalPath)) {
+        fs.unlinkSync(coverImageLocalPath);
+    }
 
     if(!coverImage.url){
         throw new ApiError(400,"Error while updating cover image")
