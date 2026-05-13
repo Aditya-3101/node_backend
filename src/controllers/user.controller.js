@@ -126,18 +126,22 @@ const loginUser = asyncHandler(async(req,res)=>{
     })
 
     if(!user){
-        throw new Error(404,"User doesn't exist")
+        throw new ApiError(404,"User doesn't exist")
     }
 
     const isValidPassword = await user.isPasswordCorrect(password)
 
     if(!isValidPassword){
-        throw new Error(401,"incorrect password :(")
+        throw new ApiError(401,"incorrect password :(")
     }
 
     const {refreshToken,accessToken} = await generateAcessAndRefreshTokens(user._id)
 
     const loggedInUser = await User.findById(user._id).select("-password -refreshToken")
+
+    if(!loggedInUser){
+        throw new ApiError(500,"something went wrong while logging..")
+    }
 
     const options = {
         httpOnly:true,

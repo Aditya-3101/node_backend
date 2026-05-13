@@ -60,7 +60,7 @@ const getVideosFromOwnChannel = asyncHandler(async (req, res) => {
     const allVideos = await Video.find({owner:currentUser}).populate("owner", "username avatar fullName")
     .skip(skip).limit(parseInt(limit))
 
-    const allVideoCount = await Video.countDocuments({owner:loggedInUser._id})
+    const allVideoCount = await Video.countDocuments({owner:currentUser})
 
     return res.status(200).json( new ApiResponse(200,{allVideos,allVideoCount,page:parseInt(page),limit:parseInt(limit)},"videos fetched successfully"))
     
