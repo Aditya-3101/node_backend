@@ -352,7 +352,7 @@ const getVideosfromSubscribedChannel = asyncHandler(async (req, res) => {
     //const result = await Video.find().limit(25).select("-__v")
 
     const result = await Video.find({ owner:channelId, isPublished: true })
-    .populate("owner", "username avatar")
+    .populate("owner", "username avatar fullName")
     .sort({ createdAt: -1 })
     .limit(20);
     
