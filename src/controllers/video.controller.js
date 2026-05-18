@@ -69,7 +69,7 @@ const getVideosFromOwnChannel = asyncHandler(async (req, res) => {
 const getVideosFromAllusers = asyncHandler(async(req,res)=>{
      const loggedInUser = req.user?._id;
 
-     const {page=1,limit=10} = req.query
+     const {page=1,limit=20} = req.query
 
      if(!loggedInUser){
         return new ApiError(400,"user didn't logged in")
