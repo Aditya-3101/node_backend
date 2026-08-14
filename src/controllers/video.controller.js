@@ -382,9 +382,9 @@ const getVideosFromPlaylist = asyncHandler(async (req, res) => {
 
     //const result = await Video.find().limit(25).select("-__v")
 
-    const result = await Video.find({_id:{$in:videos}}).select("_id thumbnail owner title duration views createdAt isPublished createdAt").populate("owner", "fullName username avatar")
+    const result = await Video.find({_id:{$in:videos}}).select("_id thumbnail owner title description duration views createdAt isPublished createdAt").populate("owner", "fullName username avatar")
     
-
+    //description
     if(!result){
        return new ApiError(500,"something went wrong while fetching all videos from subscribed channel")
     }
