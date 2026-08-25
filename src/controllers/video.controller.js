@@ -62,7 +62,8 @@ const getVideosFromOwnChannel = asyncHandler(async (req, res) => {
 
     const allVideoCount = await Video.countDocuments({owner:currentUser})
 
-    return res.status(200).json( new ApiResponse(200,{allVideos,allVideoCount,page:parseInt(page),limit:parseInt(limit)},"videos fetched successfully"))
+    return res.status(200)
+    .json( new ApiResponse(200,{allVideos,allVideoCount,page:parseInt(page),limit:parseInt(limit)},"videos fetched successfully"))
     
 })
 
@@ -337,7 +338,9 @@ const getMoreVideos = asyncHandler(async (req, res) => {
 
 const getVideosfromSubscribedChannel = asyncHandler(async (req, res) => {
 
-    const { channelId } = req.params
+    const { channelId } = req.params;
+
+    const {page=1,limit=10} = req.query;
 
     if(!isValidObjectId(channelId)){
         throw new ApiError(400,"invalid video id")
@@ -345,23 +348,27 @@ const getVideosfromSubscribedChannel = asyncHandler(async (req, res) => {
 
     const loggedInUser = req.user?._id;
 
+    const skip = (parseInt(page)-1)*(parseInt(limit))
+
     if(!loggedInUser){
        return new ApiError(400,"user didn't logged in")
     }
 
     //const result = await Video.find().limit(25).select("-__v")
 
-    const result = await Video.find({ owner:channelId, isPublished: true })
+    const allVideos = await Video.find({ owner:channelId, isPublished: true })
     .populate("owner", "username avatar fullName")
     .sort({ createdAt: -1 })
-    .limit(20);
-    
+    .skip(skip)
+    .limit(parseInt(limit));
 
-    if(!result){
+    const allVideosCount = await Video.countDocuments({owner:channelId})
+    
+    if(!allVideos){
        return new ApiError(500,"something went wrong while fetching all videos from subscribed channel")
     }
 
-    return res.status(200).json(new ApiResponse(200,result,"all available videos from subscribed channel fetched"))
+    return res.status(200).json(new ApiResponse(200,{allVideos,allVideosCount,page:parseInt(page),limit:parseInt(limit)},"all available videos from subscribed channel fetched"))
 
     //TODO: get video by id
 })

@@ -84,6 +84,10 @@ const registerUser = asyncHandler(async(req,res)=>{
         throw new ApiError(400,"pfp is not uploaded :(")
     }
 
+    console.log(avatar)
+
+    console.log(coverImage)
+
     const user = await User.create({
         fullName,
         avatar: avatar.url,
@@ -322,6 +326,8 @@ const updateUserAvatar = asyncHandler(async(req,res)=>{
     if(!avatar.url){
         throw new ApiError(400,"Error while updating avatar")
     }
+
+    console.log(avatar)
 
     const user = await User.findByIdAndUpdate(
         req.user?._id,
