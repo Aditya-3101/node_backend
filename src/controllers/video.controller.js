@@ -6,6 +6,7 @@ import {ApiResponse} from "../utils/ApiResponse.js"
 import {asyncHandler} from "../utils/asyncHandler.js"
 import {uploadOnCloudinary} from "../utils/cloudnary.js"
 import fs from 'fs'
+import { Subscription } from "../models/subscription.model.js"
 
 
 const getAllVideos = asyncHandler(async (req, res) => {
@@ -172,11 +173,27 @@ const getVideoById = asyncHandler(async (req, res) => {
         throw new ApiError(500,"something went wrong while fetching video by Id")
     }
 
+    let subscriberCount = 0;
+    let videoData
+
     if(videoById.length===0){
         throw new ApiError(404,"No video found with given ID")
     }
 
-    return res.status(200).json(new ApiResponse(200,videoById,"fetched video by ID"))
+    if(videoById) {
+        subscriberCount = await Subscription.findOne({
+            channel:videoById.owner._id
+        }).select("subscriber").countDocuments()
+
+        //console.log(subscriberCount)
+
+        videoData = videoById.toObject();
+        videoData.subscriberCount = subscriberCount;
+    }
+     
+    //videoById.subscriberCount = subscriberCount
+
+    return res.status(200).json(new ApiResponse(200,videoData,"fetched video by ID"))
 
     //TODO: get video by id
 })
