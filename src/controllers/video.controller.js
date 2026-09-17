@@ -29,10 +29,6 @@ const getAllVideos = asyncHandler(async (req, res) => {
         filter.title = {$regex:query, $options:"i"}
     }
 
-    // const sort = {
-    //     [sortBy] : sortType === "asc" ? 1 : -1
-    // }
-
     const sort = sortBy
   ? { [sortBy]: sortType === "asc" ? 1 : -1 }
   : { createdAt: -1 }
@@ -42,6 +38,39 @@ const getAllVideos = asyncHandler(async (req, res) => {
     const allVideoCount = await Video.countDocuments(filter)
 
     return res.status(200).json( new ApiResponse(200,{allVideos,allVideoCount,page:parseInt(page),limit:parseInt(limit)},"videos fetched successfully"))
+    
+})
+
+const getVideosByQuery = asyncHandler(async (req, res) => {
+    const { page = 1, limit = 10, query } = req.query
+    //TODO: get all videos based on query, sort, pagination
+
+    const loggedInUser = req.user?._id;
+
+    if(!loggedInUser){
+        return new ApiError(401,"user didnt logged in")
+    }
+
+    const filter = {
+        isPublished:true,
+    }
+
+
+    const skip = (parseInt(page) - 1)*parseInt(limit)
+
+    if(query){
+        filter.title = {$regex:query, $options:"i"}
+    }
+
+//     const sort = sortBy
+//   ? { [sortBy]: sortType === "asc" ? 1 : -1 }
+//   : { createdAt: -1 }
+
+    const allVideos = await Video.find(filter).select('_id title').skip(skip).limit(parseInt(limit))
+
+    //const allVideoCount = await Video.countDocuments(filter)
+
+    return res.status(200).json( new ApiResponse(200,{allVideos,page:parseInt(page),limit:parseInt(limit)},"videos fetched successfully"))
     
 })
 
@@ -329,7 +358,7 @@ const getMoreVideos = asyncHandler(async (req, res) => {
     const loggedInUser = req.user?._id;
 
     if(!loggedInUser){
-       return new ApiError(400,"user didn't logged in")
+       return new ApiError(401,"user didn't logged in")
     }
 
     const result = await Video.find({ _id:{$ne:videoId}, isPublished: true })
@@ -430,5 +459,6 @@ export {
     getMoreVideos,
     getVideosfromSubscribedChannel,
     getVideosFromPlaylist,
-    getVideosFromOwnChannel
+    getVideosFromOwnChannel,
+    getVideosByQuery
 }
