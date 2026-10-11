@@ -66,7 +66,7 @@ const getVideosByQuery = asyncHandler(async (req, res) => {
 //   ? { [sortBy]: sortType === "asc" ? 1 : -1 }
 //   : { createdAt: -1 }
 
-    const allVideos = await Video.find(filter).select('_id title').skip(skip).limit(parseInt(limit))
+    const allVideos = await Video.find(filter).select('_id title thumbnail').skip(skip).limit(parseInt(limit))
 
     //const allVideoCount = await Video.countDocuments(filter)
 
