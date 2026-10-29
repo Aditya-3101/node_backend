@@ -12,3 +12,74 @@ Express is running at PORT : 8000
 
  MongoDB Database connected !! DB HOST:ac-oxgjzmz-shard-00-00.t3x1csb.mongodb.net
 Express is running at PORT : 8000
+
+> node@1.0.6 dev
+> node --watch src/index.js
+
+
+ MongoDB Database connected !! DB HOST:ac-oxgjzmz-shard-00-00.t3x1csb.mongodb.net
+Express is running at PORT : 8000
+Error: jwt expired
+    at file:///home/aadi/projects/node/src/middlewares/auth.middleware.js:25:11
+    at file:///home/aadi/projects/node/src/utils/asyncHandler.js:19:25
+    at Layer.handleRequest (/home/aadi/projects/node/node_modules/.pnpm/router@2.2.0/node_modules/router/lib/layer.js:152:17)
+    at next (/home/aadi/projects/node/node_modules/.pnpm/router@2.2.0/node_modules/router/lib/route.js:157:13)
+    at Route.dispatch (/home/aadi/projects/node/node_modules/.pnpm/router@2.2.0/node_modules/router/lib/route.js:117:3)
+    at handle (/home/aadi/projects/node/node_modules/.pnpm/router@2.2.0/node_modules/router/index.js:435:11)
+    at Layer.handleRequest (/home/aadi/projects/node/node_modules/.pnpm/router@2.2.0/node_modules/router/lib/layer.js:152:17)
+    at /home/aadi/projects/node/node_modules/.pnpm/router@2.2.0/node_modules/router/index.js:295:15
+    at processParams (/home/aadi/projects/node/node_modules/.pnpm/router@2.2.0/node_modules/router/index.js:582:12)
+    at next (/home/aadi/projects/node/node_modules/.pnpm/router@2.2.0/node_modules/router/index.js:291:5)
+Error: jwt expired
+    at file:///home/aadi/projects/node/src/middlewares/auth.middleware.js:25:11
+    at file:///home/aadi/projects/node/src/utils/asyncHandler.js:19:25
+    at Layer.handleRequest (/home/aadi/projects/node/node_modules/.pnpm/router@2.2.0/node_modules/router/lib/layer.js:152:17)
+    at next (/home/aadi/projects/node/node_modules/.pnpm/router@2.2.0/node_modules/router/lib/route.js:157:13)
+    at Route.dispatch (/home/aadi/projects/node/node_modules/.pnpm/router@2.2.0/node_modules/router/lib/route.js:117:3)
+    at handle (/home/aadi/projects/node/node_modules/.pnpm/router@2.2.0/node_modules/router/index.js:435:11)
+    at Layer.handleRequest (/home/aadi/projects/node/node_modules/.pnpm/router@2.2.0/node_modules/router/lib/layer.js:152:17)
+    at /home/aadi/projects/node/node_modules/.pnpm/router@2.2.0/node_modules/router/index.js:295:15
+    at processParams (/home/aadi/projects/node/node_modules/.pnpm/router@2.2.0/node_modules/router/index.js:582:12)
+    at next (/home/aadi/projects/node/node_modules/.pnpm/router@2.2.0/node_modules/router/index.js:291:5)
+TypeError: Cannot read properties of null (reading 'owner')
+    at file:///home/aadi/projects/node/src/controllers/video.controller.js:256:19
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+TypeError: Cannot read properties of null (reading 'owner')
+    at file:///home/aadi/projects/node/src/controllers/video.controller.js:256:19
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+Error: You are not the actual owner of this video
+    at file:///home/aadi/projects/node/src/controllers/video.controller.js:257:15
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+(node:632) [MONGOOSE] Warning: mongoose: the `new` option for `findOneAndUpdate()` and `findOneAndReplace()` is deprecated. Use `returnDocument: 'after'` instead.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:632) [MONGOOSE] Warning: mongoose: the `new` option for `findOneAndUpdate()` and `findOneAndReplace()` is deprecated. Use `returnDocument: 'after'` instead.
+Restarting 'src/index.js'
+
+ MongoDB Database connected !! DB HOST:ac-oxgjzmz-shard-00-00.t3x1csb.mongodb.net
+Express is running at PORT : 8000
+Error: Unauthorized request
+    at file:///home/aadi/projects/node/src/middlewares/auth.middleware.js:25:11
+    at file:///home/aadi/projects/node/src/utils/asyncHandler.js:19:25
+    at Layer.handleRequest (/home/aadi/projects/node/node_modules/.pnpm/router@2.2.0/node_modules/router/lib/layer.js:152:17)
+    at trimPrefix (/home/aadi/projects/node/node_modules/.pnpm/router@2.2.0/node_modules/router/index.js:342:13)
+    at /home/aadi/projects/node/node_modules/.pnpm/router@2.2.0/node_modules/router/index.js:297:9
+    at processParams (/home/aadi/projects/node/node_modules/.pnpm/router@2.2.0/node_modules/router/index.js:582:12)
+    at next (/home/aadi/projects/node/node_modules/.pnpm/router@2.2.0/node_modules/router/index.js:291:5)
+    at Function.handle (/home/aadi/projects/node/node_modules/.pnpm/router@2.2.0/node_modules/router/index.js:186:3)
+    at router (/home/aadi/projects/node/node_modules/.pnpm/router@2.2.0/node_modules/router/index.js:60:12)
+    at Layer.handleRequest (/home/aadi/projects/node/node_modules/.pnpm/router@2.2.0/node_modules/router/lib/layer.js:152:17)
+ReferenceError: thumbnail is not defined
+    at file:///home/aadi/projects/node/src/controllers/video.controller.js:266:48
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+Restarting 'src/index.js'
+
+ MongoDB Database connected !! DB HOST:ac-oxgjzmz-shard-00-00.t3x1csb.mongodb.net
+Express is running at PORT : 8000
+Restarting 'src/index.js'
+
+ MongoDB Database connected !! DB HOST:ac-oxgjzmz-shard-00-00.t3x1csb.mongodb.net
+Express is running at PORT : 8000
+(node:18031) [MONGOOSE] Warning: mongoose: the `new` option for `findOneAndUpdate()` and `findOneAndReplace()` is deprecated. Use `returnDocument: 'after'` instead.
+(Use `node --trace-warnings ...` to show where the warning was created)
+File is uploded on server  http://res.cloudinary.com/dzdu2gw3u/image/upload/v1793214295/bhrmddahexk5ei1ouc1m.png
+(node:18031) [MONGOOSE] Warning: mongoose: the `new` option for `findOneAndUpdate()` and `findOneAndReplace()` is deprecated. Use `returnDocument: 'after'` instead.

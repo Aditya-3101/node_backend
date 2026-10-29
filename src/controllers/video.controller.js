@@ -243,7 +243,7 @@ const updateVideo = asyncHandler(async (req, res) => {
 
     const thumbnailLocalPath = req.file?.path;
 
-    const thumbnail = await uploadOnCloudinary(thumbnailLocalPath)
+    const thumbnailNew = await uploadOnCloudinary(thumbnailLocalPath)
         
         if (fs.existsSync(thumbnailLocalPath)) {
         fs.unlinkSync(thumbnailLocalPath);
@@ -251,7 +251,7 @@ const updateVideo = asyncHandler(async (req, res) => {
 
     const loggedInUser = req.user?._id
 
-    const videoOwner = await Video.findById(videoId).select("owner -_id")
+    const videoOwner = await Video.findById(videoId).select("owner -_id thumbnail")
 
     if(videoOwner.owner.toString()!==loggedInUser.toString()){
         throw new ApiError(403,"You are not the actual owner of this video")
@@ -263,7 +263,7 @@ const updateVideo = asyncHandler(async (req, res) => {
             $set:{
                 title,
                 description,
-                thumbnail:thumbnail?.url || ""   
+                thumbnail:thumbnailNew?.url || videoOwner.thumbnail  
             }
         },
         {
